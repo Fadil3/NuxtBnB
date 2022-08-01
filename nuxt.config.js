@@ -17,4 +17,8 @@ export default {
   router: {
     prefetchLinks: false, // disable prefetch link
   },
+  plugins: ['~/plugins/maps.client'],
+  env: {
+    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
+  },
 }
