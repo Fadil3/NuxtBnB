@@ -39,10 +39,15 @@ export default {
       title: this.home.title,
       script: [
         {
-          src: `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places`,
+          src: `https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`,
           hid: 'map',
           type: 'text/javascript',
-          defer: true,
+          async: true,
+          skip: process.client && window.mapLoaded,
+        },
+        {
+          innerHTML: 'window.initMap = function(){window.mapLoaded = true}',
+          hid: 'map-init',
         },
       ],
     }
@@ -50,30 +55,40 @@ export default {
   data() {
     return { home: {} }
   },
+  methods: {
+    showMap() {
+      const mapOptions = {
+        center: new window.google.maps.LatLng(
+          this.home._geoloc.lat,
+          this.home._geoloc.lng
+        ),
+        zoom: 15,
+        disableDefaultUI: true,
+        zoomControl: true,
+      }
+      const map = new window.google.maps.Map(this.$refs.map, mapOptions)
+      const position = new window.google.maps.LatLng(
+        this.home._geoloc.lat,
+        this.home._geoloc.lng
+      )
+      const marker = new window.google.maps.Marker({
+        position,
+      })
+
+      marker.setMap(map)
+    },
+  },
   created() {
     const home = homes.find((home) => home.objectID === this.$route.params.id)
     this.home = home
   },
   mounted() {
-    const mapOptions = {
-      center: new window.google.maps.LatLng(
-        this.home._geoloc.lat,
-        this.home._geoloc.lng
-      ),
-      zoom: 15,
-      disableDefaultUI: true,
-      zoomControl: true,
-    }
-    const map = new window.google.maps.Map(this.$refs.map, mapOptions)
-    const position = new window.google.maps.LatLng(
-      this.home._geoloc.lat,
-      this.home._geoloc.lng
-    )
-    const marker = new window.google.maps.Marker({
-      position,
-    })
-
-    marker.setMap(map)
+    const timer = setInterval(() => {
+      if (window.mapLoaded) {
+        this.showMap()
+        clearInterval(timer)
+      }
+    }, 200)
   },
 }
 </script>
