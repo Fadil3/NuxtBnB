@@ -23,7 +23,7 @@
       {{ home.reviewValue }}
       <br />
       {{ home.guests }} guests, {{ home.bedrooms }} bedrooms,
-      {{ home.beds }} beds, {{ home.baths }} baths
+      {{ home.beds }} beds, {{ home.bathrooms }} baths
       <br />
     </div>
   </div>
