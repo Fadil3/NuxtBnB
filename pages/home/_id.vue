@@ -27,6 +27,9 @@
       <br />
       {{ home.description }}
       <div class="" style="height: 800px; width: 800px" ref="map"></div>
+      <div v-for="review in reviews" class="" :key="review.objectId">
+        <img :src="review.reviewer.image" :alt="review.comment" />
+      </div>
     </div>
   </div>
 </template>
@@ -40,14 +43,26 @@ export default {
   },
   methods: {},
   async asyncData({ params, $dataApi, error }) {
-    const response = await $dataApi.getHome(params.id)
-    if (!response.ok) {
+    const homeResponse = await $dataApi.getHome(params.id)
+    if (!homeResponse.ok) {
       return error({
-        statusCode: response.status,
-        message: response.statusText,
+        statusCode: homeResponse.status,
+        message: homeResponse.statusText,
       })
     }
-    return { home: response.json }
+
+    const reviewResponse = await $dataApi.getReviewsByHomeId(params.id)
+    if (!reviewResponse.ok) {
+      return error({
+        statusCode: reviewResponse.status,
+        message: reviewResponse.statusText,
+      })
+    }
+
+    return {
+      home: homeResponse.json,
+      reviews: reviewResponse.json.hits,
+    }
   },
   mounted() {
     this.$maps.showMap(
